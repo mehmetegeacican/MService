@@ -33,6 +33,17 @@ services:
       MONGO_INITDB_ROOT_PASSWORD: adminpassword
     volumes:
       - mongo-data-client:/data/db
+  
+  userservice:
+    build:
+      context: ./UserService 
+    container_name: userservice
+    environment:
+      MONGO_URI: mongodb://admin:adminpassword@userdb:27017/userdb?authSource=admin
+    ports:
+      - "5000:5000" 
+    depends_on:
+      - userdb 
 
 volumes:
   mongo-data-user:
