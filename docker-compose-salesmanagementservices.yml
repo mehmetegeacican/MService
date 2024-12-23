@@ -40,6 +40,7 @@ services:
     container_name: userservice
     environment:
       MONGO_URI: mongodb://admin:adminpassword@userdb:27017/userdb?authSource=admin
+      JWT_SECRET: 123asd123
     ports:
       - "5000:5000" 
     depends_on:
