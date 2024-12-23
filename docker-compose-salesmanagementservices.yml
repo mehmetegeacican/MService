@@ -1,0 +1,45 @@
+version: "3.9"
+
+services:
+  userdb:
+    image: mongo:6.0
+    container_name: userdb
+    ports:
+      - "27017:27017"
+    environment:
+      MONGO_INITDB_ROOT_USERNAME: admin
+      MONGO_INITDB_ROOT_PASSWORD: adminpassword
+    volumes:
+      - mongo-data-user:/data/db
+
+  salesdb:
+    image: mongo:6.0
+    container_name: salesdb
+    ports:
+      - "27018:27017"  # Farklı portta çalışacak
+    environment:
+      MONGO_INITDB_ROOT_USERNAME: admin
+      MONGO_INITDB_ROOT_PASSWORD: adminpassword
+    volumes:
+      - mongo-data-sales:/data/db
+
+  clientdb:
+    image: mongo:6.0
+    container_name: clientdb
+    ports:
+      - "27019:27017"  # Farklı portta çalışacak
+    environment:
+      MONGO_INITDB_ROOT_USERNAME: admin
+      MONGO_INITDB_ROOT_PASSWORD: adminpassword
+    volumes:
+      - mongo-data-client:/data/db
+
+volumes:
+  mongo-data-user:
+    driver: local
+
+  mongo-data-sales:
+    driver: local
+
+  mongo-data-client:
+    driver: local
