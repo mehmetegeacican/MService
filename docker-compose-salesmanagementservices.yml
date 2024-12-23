@@ -50,12 +50,12 @@ services:
       context: ./ClientService 
     container_name: clientservice
     environment:
-      MONGO_URI: mongodb://admin:adminpassword@userdb:27019/userdb?authSource=admin
+      MONGO_URI: mongodb://admin:adminpassword@clientdb:27017/clientdb?authSource=admin
       JWT_SECRET: 123asd123
     ports:
-      - "5001:5001" 
+      - "5001:5000" 
     depends_on:
-      - userdb 
+      - clientdb 
 
 volumes:
   mongo-data-user:
