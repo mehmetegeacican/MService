@@ -97,10 +97,12 @@ const updateUser = async (req, res) => {
         if(password){
             hashedPassword = await bcrypt.hash(password, 10);
         }
+        // Role Change -- Only Admin can change role
+
         const updatedUser = await User.findByIdAndUpdate(userId, { 
             username:username, 
             email:email, 
-            password:hashedPassword 
+            password:hashedPassword,
         }, { new: true });
 
         if (!updatedUser) {
