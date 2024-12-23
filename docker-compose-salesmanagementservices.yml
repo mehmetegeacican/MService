@@ -45,6 +45,17 @@ services:
       - "5000:5000" 
     depends_on:
       - userdb 
+  clientservice:
+    build:
+      context: ./ClientService 
+    container_name: clientservice
+    environment:
+      MONGO_URI: mongodb://admin:adminpassword@clientdb:27017/clientdb?authSource=admin
+      JWT_SECRET: 123asd123
+    ports:
+      - "5001:5000" 
+    depends_on:
+      - clientdb 
 
 volumes:
   mongo-data-user:
