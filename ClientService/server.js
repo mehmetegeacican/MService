@@ -1,6 +1,7 @@
 const express = require('express');
 const dotenv = require('dotenv');
 const { connectMongoDB, disconnectMongo } = require('./config/dbConnection');
+const clientRoutes = require('./routes/client.routes');
 
 dotenv.config();
 
@@ -18,8 +19,7 @@ const startServer = async () => {
     try {
         const isConnected = await connectMongoDB(process.env.MONGO_URI);
         if(isConnected){
-
-            //app.use('/api/v1/clients', userRoutes);
+            app.use('/api/v1/clients', clientRoutes);
             app.listen(port, () => {
                 console.log(`Server is running on port ${port}`);
             });
