@@ -1,4 +1,6 @@
 const User = require('../models/User');
+const bcrypt = require('bcryptjs');
+const jwt = require('jsonwebtoken');
 
 /**
  * Sign up a new user
@@ -8,22 +10,26 @@ const User = require('../models/User');
 const signUp = async (req, res) => {
     try {
         const { username, email, password } = req.body;
-        console.log("req.body",req.body)
         // Step 1 -- Check if user already exists
         const existingUser = await User.findOne({ email: email });
         if (existingUser) {
             return res.status(400).json({ message: 'User already exists' });
         }
-        console.log("existingUser",existingUser);
-        // Step 2 -- Create a new user
-        const newUser = new User({ 
-            username:username, 
-            email:email, 
-            password:password 
+        // Step 2 -- Hash the password
+        const hashedPassword = await bcrypt.hash(password, 10);
+
+        // Step 3 -- Create a new user
+        const newUser = new User({
+            username: username,
+            email: email,
+            password: hashedPassword
         });
         await newUser.save();
-
-        res.status(201).json({ message: 'User created successfully', user: newUser });
+        // Step 4 -- Create a JSON WEB TOKEN for the user
+        const token = jwt.sign({ userId: newUser._id, role: newUser.role }, process.env.JWT_SECRET, {
+            expiresIn: '1h',
+        });
+        res.status(201).json({ message: 'User created successfully', user: newUser , token: token});
     } catch (err) {
         res.status(500).json({ message: 'Server error', error: err.message });
     }
@@ -45,11 +51,17 @@ const login = async (req, res) => {
         }
 
         // Step 2 -- Check if password is correct
-        if (user.password !== password) {
+        const isMatch = await bcrypt.compare(password, user.password);
+        if (!isMatch) {
             return res.status(400).json({ message: 'Invalid credentials' });
         }
-
-        res.status(200).json({ message: 'Login successful', user });
+        // Step 3 -- Create a JSON WEB TOKEN for the user
+        const token = jwt.sign({ userId: user._id, role: user.role }, process.env.JWT_SECRET, {
+            expiresIn: '1h',
+        });
+        
+        // Step 4 -- Send the token as response
+        res.status(200).json({ message: 'Login successful', user:user, token: token });
 
     } catch (err) {
         res.status(500).json({ message: 'Server error', error: err.message });
