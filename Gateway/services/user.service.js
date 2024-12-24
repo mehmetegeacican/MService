@@ -33,9 +33,14 @@ const login = async (req, res) => {
  */
 const signup = async (req, res) => {
     try {
-        const response = await axios.post(`${USER_SERVICE_URL}/api/v1/users/signup`, req.body);
+        const response = await axios.post(`${USER_SERVICE_URL}/api/v1/users/signup`, req.body,{
+            headers: {
+                'x-gateway-secret': GATEWAY_SECRET_KEY,  // Secret key header
+            },
+        });
         res.json(response.data);  // Return the token
     } catch (error) {
+        console.error(error);
         res.status(500).json({message: 'Error signing up'});
     }
 };
@@ -48,11 +53,14 @@ const signup = async (req, res) => {
 const getUsers = async (req, res) => {
     try {
         const response = await axios.get(`${USER_SERVICE_URL}/api/v1/users`, {
-            headers: { Authorization: `Bearer ${req.headers['authorization'].split(' ')[1]}` }
+            headers: { 
+                Authorization: `Bearer ${req.headers['authorization'].split(' ')[1]}`,
+                'x-gateway-secret': GATEWAY_SECRET_KEY,
+            }
         });
         res.json(response.data);  // Return the response from UserService
     } catch (error) {
-        res.status(500).send('Error getting users');
+        res.status(500).json({message:'Error getting users'});
     }
 };
 
@@ -63,12 +71,17 @@ const getUsers = async (req, res) => {
  */
 const updateUser = async (req,res) => {
     try {
-        const response = await axios.put(`${USER_SERVICE_URL}/api/v1/users/:userId`, req.body, {
-            headers: { Authorization: `Bearer ${req.headers['authorization'].split(' ')[1]}` }
+
+        const response = await axios.put(`${USER_SERVICE_URL}/api/v1/users/${req.params.userId}`, req.body, {
+            headers: { 
+                Authorization: `Bearer ${req.headers['authorization'].split(' ')[1]}`,
+                'x-gateway-secret': GATEWAY_SECRET_KEY,
+            }
         });
         res.json(response.data);  // Return the response from UserService
     } catch (error) {
-        res.status(500).send('Error getting users');
+        console.error(error);
+        res.status(500).json({message: 'Error updating users'});
     }
 };
 
