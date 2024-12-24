@@ -66,6 +66,7 @@ services:
     environment:
       MONGO_URI: mongodb://admin:adminpassword@clientdb:27017/clientdb?authSource=admin
       JWT_SECRET: 123asd123
+      GATEWAY_SECRET_KEY: 123secretTunnel456
     ports:
       - "5001:5000" 
     depends_on:

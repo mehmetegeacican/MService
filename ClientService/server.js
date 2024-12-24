@@ -8,6 +8,7 @@ const swaggerUi = require('swagger-ui-express');
 
 const clientRoutes = require('./routes/client.routes');
 const noteRoutes = require('./routes/note.routes');
+const { checkGatewayCode } = require('./middleware/gateway.middleware');
 dotenv.config();
 
 
@@ -27,7 +28,7 @@ const startServer = async () => {
     try {
         const isConnected = await connectMongoDB(process.env.MONGO_URI);
         if(isConnected){
-
+            app.use(checkGatewayCode);
             app.use('/api/v1/notes', noteRoutes);
             app.use('/api/v1/clients', clientRoutes);
             
