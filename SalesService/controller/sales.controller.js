@@ -122,7 +122,30 @@ const updateSale = async (req, res) => {
  * @param {*} res 
  */
 const addSaleNote = async (req, res) => { 
-
+    try{
+        // Step 0 -- Variables
+        const {saleId} = req.params;
+        const {note} = req.body;
+        // Step 1 -- Make sure that the sale exists
+        const sale = await Sale.findById(saleId);
+        if(!sale){
+            return res.status(404).json({ message: 'Sale not found' });
+        }
+        // Step 2 -- Add the sale note
+        const newSaleNote = new SaleNote({
+            saleId: saleId,
+            note: note,
+        });
+        await newSaleNote.save();
+        // Return the sale note
+        return res.status(201).json({
+            success: true,
+            data: newSaleNote,
+        });
+    } catch(error) {
+        console.error('Error adding sale note:', error);
+        return res.status(500).json({ message: 'Internal Server Error' });
+    }
 };
 
 /**
@@ -131,7 +154,29 @@ const addSaleNote = async (req, res) => {
  * @param {*} res 
  */
 const editSaleNote = async (req, res) => { 
+    try{
+        // Step 0 -- Variables
+        const {noteId} = req.params;
+        const {note} = req.body;
+        // Step 1 -- Make sure that the sale note exists
+        const saleNote = await SaleNote.findById(noteId);
+        if(!saleNote){
+            return res.status(404).json({ message: 'Sale note not found' });
+        }
+        // Step 2 -- Update the sale note
+        saleNote.note = note;
+        // Step 3 -- Save the sale note
+        await saleNote.save();
+        // Return the sale note
+        return res.status(200).json({
+            success: true,
+            data: saleNote,
+        });
 
+    } catch(error) {
+        console.error('Error editing sale note:', error);
+        return res.status(500).json({ message: 'Internal Server Error' });
+    }
 };
 
 /**

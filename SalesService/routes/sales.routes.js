@@ -3,7 +3,10 @@ const {
     getSales,
     createSale,
     updateSale,
-    getSaleHistory
+    getSaleHistory,
+    addSaleNote,
+    editSaleNote
+    
 } = require('../controller/sales.controller');
 
 
@@ -14,6 +17,10 @@ router.get('/', getSales);
 router.get('/:saleId/history', getSaleHistory);
 
 router.post('/', createSale);
+
+router.post('/:saleId/note', addSaleNote);
+
+router.put('/:saleId/note/:noteId', editSaleNote);
 
 router.put('/:saleId', updateSale);
 
