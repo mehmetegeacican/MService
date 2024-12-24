@@ -25,11 +25,13 @@ const clientSchema = new mongoose.Schema(
             required: true,
             trim: true,
         },
+        /*
         notes: [
             {
                 type : noteSchema
             },
         ], // Array of note references
+        */
     },
     {
         timestamps: true, // Adds createdAt and updatedAt fields automatically
