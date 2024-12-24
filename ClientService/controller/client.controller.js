@@ -27,7 +27,7 @@ const getClients = async (req, res) => {
         // Step 3 -- Fetch the clients
         const clients = await Client.find(filters).sort(sort);
         // Return the list of clients
-        res.status(200).json({
+        return res.status(200).json({
             success: true,
             data: clients,
         });

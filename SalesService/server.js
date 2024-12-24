@@ -7,6 +7,7 @@ const app = express();
 const port = process.env.PORT || 5000;
 
 
+const salesRoutes = require('./routes/sales.routes');
 app.use(express.json()); // To parse incoming JSON requests
 
 // Functions
@@ -14,8 +15,7 @@ const startServer = async () => {
     try {
         const isConnected = await connectMongoDB(process.env.MONGO_URI);
         if(isConnected){
-
-            //app.use('/api/v1/sales', userRoutes);
+            app.use('/api/v1/sales', salesRoutes);
             app.listen(port, () => {
                 console.log(`Server is running on port ${port}`);
             });
