@@ -3,6 +3,7 @@ const {
     getClients,
     createClient,
     updateClient,
+    getNotesOfClient
 } = require('../controller/client.controller');
 const router = express.Router();
 
@@ -19,6 +20,56 @@ const router = express.Router();
  *         description: Server error
  */
 router.get('/', getClients);
+
+/**
+ * @swagger
+ * /api/v1/clients/{clientId}/notes:
+ *   get:
+ *     summary: Get all notes for a specific client
+ *     description: Retrieve all notes associated with a specific client by providing the client's ID.
+ *     parameters:
+ *       - in: path
+ *         name: clientId
+ *         required: true
+ *         description: ID of the client whose notes you want to retrieve.
+ *         schema:
+ *           type: string
+ *     responses:
+ *       200:
+ *         description: A list of notes associated with the client.
+ *         content:
+ *           application/json:
+ *             schema:
+ *               type: object
+ *               properties:
+ *                 notes:
+ *                   type: array
+ *                   items:
+ *                     type: object
+ *                     properties:
+ *                       _id:
+ *                         type: string
+ *                         description: ID of the note.
+ *                       title:
+ *                         type: string
+ *                         description: Title of the note.
+ *                       content:
+ *                         type: string
+ *                         description: Content of the note.
+ *                       createdAt:
+ *                         type: string
+ *                         format: date-time
+ *                         description: The date and time when the note was created.
+ *                       updatedAt:
+ *                         type: string
+ *                         format: date-time
+ *                         description: The date and time when the note was last updated.
+ *       404:
+ *         description: Client not found.
+ *       500:
+ *         description: Internal server error.
+ */
+router.get('/:clientId/notes', getNotesOfClient);
 
 /**
  * @swagger
@@ -145,6 +196,7 @@ router.post('/', createClient);
  *         description: Internal Server error
  */
 router.put('/:clientId', updateClient);
+
 
 
 module.exports = router;

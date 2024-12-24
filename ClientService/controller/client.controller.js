@@ -1,4 +1,5 @@
 const Client = require('../model/client.model');
+const Note = require('../model/note.model');
 
 
 /**
@@ -33,6 +34,30 @@ const getClients = async (req, res) => {
         });
     } catch (error) {
         console.error('Error fetching clients:', error);
+        return res.status(500).json({ message: 'Internal Server Error' });
+    }
+}
+
+
+/**
+ * Gets Notes of the Clients
+ * @param {*} req 
+ * @param {*} res 
+ * @returns 
+ */
+const getNotesOfClient = async (req, res) => { 
+    try {
+        // Step 0 -- Variables
+        const { clientId } = req.params;
+        // Step 1 -- Fetch the notes
+        const notes = await Note.find({ clientId: clientId });
+        // Return the list of notes
+        return res.status(200).json({
+            success: true,
+            data: notes,
+        });
+    } catch (error) {
+        console.error('Error fetching notes:', error);
         return res.status(500).json({ message: 'Internal Server Error' });
     }
 }
@@ -115,5 +140,6 @@ const updateClient = async (req, res) => {
 module.exports = {
     getClients,
     createClient,
-    updateClient
+    updateClient,
+    getNotesOfClient
 }
