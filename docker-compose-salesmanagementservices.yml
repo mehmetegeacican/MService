@@ -44,7 +44,20 @@ services:
     ports:
       - "5000:5000" 
     depends_on:
-      - userdb 
+      - userdb
+
+  salesservice:
+      build:
+        context: ./SalesService 
+      container_name: salesservice
+      environment:
+        MONGO_URI: mongodb://admin:adminpassword@salesdb:27017/salesdb?authSource=admin
+        JWT_SECRET: 123asd123
+      ports:
+        - "5002:5000" 
+      depends_on:
+        - salesdb 
+
   clientservice:
     build:
       context: ./ClientService 
@@ -56,6 +69,8 @@ services:
       - "5001:5000" 
     depends_on:
       - clientdb 
+
+    
 
 volumes:
   mongo-data-user:
