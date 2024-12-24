@@ -6,6 +6,7 @@ const userRoutes = require('./routes/user.routes');
 const swaggerOptions = require('./config/swagger');
 const swaggerJSDoc = require('swagger-jsdoc');
 const swaggerUi = require('swagger-ui-express');
+const { checkGatewayCode } = require('./middleware/gateway.middleware');
 dotenv.config();
 
 
@@ -23,8 +24,7 @@ const startServer = async () => {
     try {
         const isConnected = await connectMongoDB(process.env.MONGO_URI);
         if(isConnected){
-
-            app.use('/api/v1/users', userRoutes);
+            app.use('/api/v1/users',checkGatewayCode, userRoutes);
             app.listen(port, () => {
                 console.log(`Server is running on port ${port}`);
             });

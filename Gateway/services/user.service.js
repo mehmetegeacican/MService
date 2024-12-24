@@ -4,7 +4,7 @@ const dotenv = require('dotenv');
 
 dotenv.config();
 
-const { USER_SERVICE_URL } = process.env;
+const { USER_SERVICE_URL , GATEWAY_SECRET_KEY} = process.env;
 
 
 /**
@@ -14,9 +14,14 @@ const { USER_SERVICE_URL } = process.env;
  */
 const login = async (req, res) => {
     try {
-        const response = await axios.post(`${USER_SERVICE_URL}/api/v1/users/login`, req.body);
+        const response = await axios.post(`${USER_SERVICE_URL}/api/v1/users/login`, req.body , {
+            headers: {
+                'x-gateway-secret': GATEWAY_SECRET_KEY,  // Secret key header
+            },
+        });
         res.json(response.data);  // Return the token
     } catch (error) {
+        console.error(error);
         res.status(500).json({message : 'Error logging in'});
     }
 };
