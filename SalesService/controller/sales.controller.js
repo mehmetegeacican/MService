@@ -1,4 +1,4 @@
-const Sale = require('../model/sales.model');
+const Sale = require('../model/sale.model');
 const SaleNote = require('../model/saleNote.model');
 const SaleHistory = require('../model/saleHistory.model');
 
