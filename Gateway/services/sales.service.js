@@ -52,7 +52,7 @@ const createSale = async (req, res) => {
  */
 const updateSale = async (req, res) => {
   try {
-    const response = await axios.put(`${SALE_SERVICE_URL}/api/v1/sales/${req.params.id}`, req.body, {
+    const response = await axios.put(`${SALE_SERVICE_URL}/api/v1/sales/${req.params.saleId}`, req.body, {
       headers: {
         Authorization: `Bearer ${req.headers['authorization'].split(' ')[1]}`,
         'x-gateway-secret': GATEWAY_SECRET_KEY
@@ -72,7 +72,7 @@ const updateSale = async (req, res) => {
  */
 const addSaleNote = async (req, res) => {
   try {
-    const response = await axios.post(`${SALE_SERVICE_URL}/api/v1/sales/${req.params.id}/notes`, req.body, {
+    const response = await axios.post(`${SALE_SERVICE_URL}/api/v1/sales/${req.params.saleId}/note`, req.body, {
       headers: {
         Authorization: `Bearer ${req.headers['authorization'].split(' ')[1]}`,
         'x-gateway-secret': GATEWAY_SECRET_KEY
@@ -80,6 +80,7 @@ const addSaleNote = async (req, res) => {
     });
     res.json(response.data);  // Return the response from SaleService
   } catch (error) {
+    console.error(error);
     res.status(500).json({ message: 'Error adding note to sale' });
   }
 };
@@ -91,7 +92,7 @@ const addSaleNote = async (req, res) => {
  */
 const editSaleNote = async (req, res) => {
   try {
-    const response = await axios.put(`${SALE_SERVICE_URL}/api/v1/sales/${req.params.id}/notes/${req.params.noteId}`, req.body, {
+    const response = await axios.put(`${SALE_SERVICE_URL}/api/v1/sales/${req.params.saleId}/note/${req.params.noteId}`, req.body, {
       headers: {
         Authorization: `Bearer ${req.headers['authorization'].split(' ')[1]}`,
         'x-gateway-secret': GATEWAY_SECRET_KEY
@@ -110,7 +111,7 @@ const editSaleNote = async (req, res) => {
  */
 const getSaleHistory = async (req, res) => {
   try {
-    const response = await axios.get(`${SALE_SERVICE_URL}/api/v1/sales/${req.params.id}/history`, {
+    const response = await axios.get(`${SALE_SERVICE_URL}/api/v1/sales/${req.params.saleId}/history`, {
       headers: {
         Authorization: `Bearer ${req.headers['authorization'].split(' ')[1]}`,
         'x-gateway-secret': GATEWAY_SECRET_KEY

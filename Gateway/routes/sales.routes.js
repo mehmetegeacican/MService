@@ -8,9 +8,9 @@ const router = express.Router();
 router.get('/api/v1/sales', getSales);
 router.get('/api/v1/sales/:saleId/history', getSaleHistory);
 router.post('/api/v1/sales', createSale);
-router.post('/api/v1/sales/:saleId/notes', addSaleNote);
+router.post('/api/v1/sales/:saleId/note', addSaleNote);
 router.put('/api/v1/sales/:saleId', updateSale);
-router.put('/api/v1/sales/:saleId/notes/:noteId', editSaleNote);
+router.put('/api/v1/sales/:saleId/note/:noteId', editSaleNote);
 
 
 module.exports = router;
