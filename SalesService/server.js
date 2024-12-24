@@ -3,11 +3,21 @@ const { connectMongoDB, disconnectMongo } = require('./config/dbConnection');
 const dotenv = require('dotenv');
 dotenv.config();
 
+
+const swaggerOptions = require('./config/swagger');
+const swaggerJSDoc = require('swagger-jsdoc');
+const swaggerUi = require('swagger-ui-express');
+
 const app = express();
 const port = process.env.PORT || 5000;
 
 
 const salesRoutes = require('./routes/sales.routes');
+
+// Middleware
+const swaggerDocs = swaggerJSDoc(swaggerOptions);
+app.use('/api-docs', swaggerUi.serve, swaggerUi.setup(swaggerDocs));
+
 app.use(express.json()); // To parse incoming JSON requests
 
 // Functions
