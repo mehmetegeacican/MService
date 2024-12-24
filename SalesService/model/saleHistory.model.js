@@ -10,3 +10,7 @@ const saleHistorySchema = new mongoose.Schema({
         required: true
     },
 },{ timestamps: true });
+
+const SaleHistory = mongoose.model('SaleHistory', saleHistorySchema);
+
+module.exports = SaleHistory;
