@@ -1,5 +1,6 @@
 const express = require('express');
 const dotenv = require('dotenv');
+
 const { connectMongoDB, disconnectMongo } = require('./config/dbConnection');
 const userRoutes = require('./routes/user.routes');
 
@@ -17,6 +18,7 @@ const port = process.env.PORT || 5001;
 // Middleware
 const swaggerDocs = swaggerJSDoc(swaggerOptions);
 app.use('/api-docs', swaggerUi.serve, swaggerUi.setup(swaggerDocs));
+
 app.use(express.json()); // To parse incoming JSON requests
 
 // Functions

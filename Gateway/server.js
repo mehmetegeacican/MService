@@ -5,13 +5,14 @@ const userRoutes = require('./routes/user.routes');  // User-related routes
 const clientRoutes = require('./routes/client.routes');  // Client-related routes
 const saleRoutes = require('./routes/sales.routes');  // Sale-related routes
 
+
 dotenv.config();
 
 const app = express();
 app.use(express.json());
 
 // Public routes (login/signup)
-app.use(userRoutes)
+app.use(userRoutes);
 
 // Protected routes (requires token)
 app.use(verifyToken);  // Apply token verification middleware
