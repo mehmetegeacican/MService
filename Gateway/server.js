@@ -20,7 +20,7 @@ app.use(verifyToken);  // Apply token verification middleware
 app.use(clientRoutes);
 app.use(saleRoutes);
 
-const PORT = process.env.PORT || 3000;
+const PORT = process.env.PORT || 5000;
 
 app.listen(PORT, () => {
   console.log(`API Gateway running on port ${PORT}`);

@@ -43,7 +43,7 @@ services:
       JWT_SECRET: 123asd123
       GATEWAY_SECRET_KEY: 123secretTunnel456
     ports:
-      - "5000:5000" 
+      - "5001:5001" 
     depends_on:
       - userdb
 
@@ -56,7 +56,7 @@ services:
         JWT_SECRET: 123asd123
         GATEWAY_SECRET_KEY: 123secretTunnel456
       ports:
-        - "5002:5000" 
+        - "5002:5002" 
       depends_on:
         - salesdb 
 
@@ -69,9 +69,27 @@ services:
       JWT_SECRET: 123asd123
       GATEWAY_SECRET_KEY: 123secretTunnel456
     ports:
-      - "5001:5000" 
+      - "5003:5003" 
     depends_on:
-      - clientdb 
+      - clientdb
+  
+  apigateway:
+    build: 
+      context: ./Gateway
+    container_name: apigateway
+    environment:
+      USER_SERVICE_URL: http://localhost:5001
+      SALE_SERVICE_URL: http://localhost:5002
+      CLIENT_SERVICE_URL: http://localhost:5003
+      JWT_SECRET: 123asd123
+      GATEWAY_SECRET_KEY: 123secretTunnel456
+      PORT: 5000
+    ports:
+      - "5000:5000"
+    depends_on:
+      - userservice
+      - clientservice
+      - salesservice
 
     
 

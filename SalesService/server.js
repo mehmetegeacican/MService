@@ -9,7 +9,7 @@ const swaggerJSDoc = require('swagger-jsdoc');
 const swaggerUi = require('swagger-ui-express');
 
 const app = express();
-const port = process.env.PORT || 5000;
+const port = process.env.PORT || 5002;
 
 
 const salesRoutes = require('./routes/sales.routes');
