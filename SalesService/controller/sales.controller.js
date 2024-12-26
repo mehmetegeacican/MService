@@ -36,6 +36,24 @@ const getSales = async (req, res) => {
     }
 };
 
+/**
+ * Retrieves the Sale History of a Specific Sale
+ * @param {*} req 
+ * @param {*} res 
+ */
+const getSaleHistory = async (req, res) => {
+    try {
+        const { saleId } = req.params;
+        const saleHistory = await SaleHistory.find({ saleId }).sort({ createdAt: 'desc' });
+        return res.status(200).json({
+            success: true,
+            data: saleHistory,
+        });
+    } catch(error) {
+        console.error('Error fetching sale history:', error);
+        return res.status(500).json({ message: 'Internal Server Error' });
+    }
+};
 
 /**
  * Craete a new sale
@@ -85,7 +103,6 @@ const updateSale = async (req, res) => {
         // Step 2 -- Update the sale
         if(status){
             // Step 3 -- Add the sale history
-            console.log(status);
             if(!['New', 'In Contact','Deal','Closed','Cancelled'].includes(status)){
                 return res.status(400).json({ message: 'Invalid status' });
             }
@@ -179,24 +196,7 @@ const editSaleNote = async (req, res) => {
     }
 };
 
-/**
- * Retrieves the Sale History of a Specific Sale
- * @param {*} req 
- * @param {*} res 
- */
-const getSaleHistory = async (req, res) => {
-    try {
-        const { saleId } = req.params;
-        const saleHistory = await SaleHistory.find({ saleId }).sort({ createdAt: 'desc' });
-        return res.status(200).json({
-            success: true,
-            data: saleHistory,
-        });
-    } catch(error) {
-        console.error('Error fetching sale history:', error);
-        return res.status(500).json({ message: 'Internal Server Error' });
-    }
-};
+
 
 
 module.exports = { 

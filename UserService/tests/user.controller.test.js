@@ -3,7 +3,7 @@ const { signUp, login, viewUsers, updateUser } = require('../controllers/user.co
 const User = require('../models/User');
 const bcrypt = require('bcryptjs');
 const jwt = require('jsonwebtoken');
-const mongoose = require('mongoose');
+
 
 describe('User Controller Tests', () => {
     afterEach(() => {
