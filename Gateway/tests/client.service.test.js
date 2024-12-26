@@ -186,9 +186,11 @@ describe('createNote API Gateway', () => {
         // Given
         const errorMessage = 'Network error';
         sinon.stub(axios, 'post').rejects(new Error(errorMessage));
+        const consoleErrorStub = sinon.stub(console, 'error');
         // When
         await createNote(req, res);
         // Then
+        sinon.assert.calledOnce(consoleErrorStub);
         sinon.assert.calledOnce(axios.post);
         sinon.assert.calledWith(res.status, 500);
         sinon.assert.calledWith(res.json, { message: 'Error creating note' });

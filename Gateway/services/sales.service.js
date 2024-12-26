@@ -41,7 +41,7 @@ const createSale = async (req, res) => {
     });
     res.json(response.data);  // Return the response from SaleService
   } catch (error) {
-    res.status(500).send('Error creating sale');
+    res.status(500).json({message:'Error creating sale'});
   }
 };
 
