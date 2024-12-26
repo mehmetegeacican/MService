@@ -93,38 +93,49 @@ const createSale = async (req, res) => {
 const updateSale = async (req, res) => { 
     try{
         // Step 0 -- Variables
-        const {saleId} = req.params;
-        const {status,userId,clientId} = req.body;
+        const { saleId } = req.params;
+        const { status, userId, clientId } = req.body;
         // Step 1 -- Make sure that the sale exists
         const sale = await Sale.findById(saleId);
-        if(!sale){
+        if (!sale) {
             return res.status(404).json({ message: 'Sale not found' });
         }
         // Step 2 -- Update the sale
-        if(status){
-            // Step 3 -- Add the sale history
-            if(!['New', 'In Contact','Deal','Closed','Cancelled'].includes(status)){
+        const updateFields = {};
+        if (status) {
+            // Step 3 -- Validate status
+            if (!['New', 'In Contact', 'Deal', 'Closed', 'Cancelled'].includes(status)) {
                 return res.status(400).json({ message: 'Invalid status' });
             }
+
+            // Step 4 -- Add the sale history
             const newSaleHistory = new SaleHistory({
                 saleId: saleId,
                 statusChange: sale.currentStatus + "-" + status,
             });
             await newSaleHistory.save();
-            sale.currentStatus = status;
+
+            updateFields.currentStatus = status;
         }
-        if(userId){
-            sale.userId = userId;
+        if (userId) {
+            updateFields.userId = userId;
         }
-        if(clientId){
-            sale.clientId = clientId;
+
+        if (clientId) {
+            updateFields.clientId = clientId;
         }
-        // Step 4 -- Save the sale
-        await sale.save();
-        // Return the sale
+
+        // Step 5 -- Update the sale using findByIdAndUpdate
+        const updatedSale = await Sale.findByIdAndUpdate(saleId, updateFields, { new: true });
+
+        if (!updatedSale) {
+            return res.status(404).json({ message: 'Sale not found' });
+        }
+
+        // Step 6 -- Return the updated sale
         return res.status(200).json({
             success: true,
-            data: sale,
+            data: updatedSale,
         });
 
     } catch(error) {
