@@ -10,6 +10,8 @@ const {
 const Sale = require('../model/sale.model');
 const SaleHistory = require('../model/saleHistory.model');
 const SaleNote = require('../model/saleNote.model');
+const mongoose = require('mongoose');
+const { ObjectId } = mongoose.Types;
 
 describe('sales controller tests', () => {
 
@@ -132,32 +134,198 @@ describe('sales controller tests', () => {
     });
 
     describe('createSale', () => {
+
+        afterEach(() => {
+            sinon.restore(); // Restore mocks/stubs after each test
+        });
+
         test('should successfully create new sale', async () => {
+            // Given
+            const req = {
+                body: { clientId: 'mockClientId', userId: 'mockUserId' },
+            };
+            const res = {
+                status: sinon.stub().returnsThis(),
+                json: sinon.stub(),
+            };
+            const mockSale = { _id: new ObjectId('676d28be7d836af854cb9a55'), clientId: 'mockClientId', userId: 'mockUserId' };
+            const saveStub = sinon.stub(Sale.prototype, 'save').resolves(mockSale);
+            // When
+            await createSale(req, res);
+            // Then
+            sinon.assert.calledOnce(saveStub);
+            sinon.assert.calledWith(res.status, 201);
+            sinon.assert.calledWith(res.json, {
+                success: true,
+                data: sinon.match({
+                    _id: sinon.match.instanceOf(ObjectId),
+                    clientId: 'mockClientId',
+                    userId: 'mockUserId'
+                }),
+            });
 
         });
         test('should return 400 if required body parameters are missing', async () => {
-
+            // Given
+            const req = {
+                body: { clientId: 'mockClientId'},
+            };
+            const res = {
+                status: sinon.stub().returnsThis(),
+                json: sinon.stub(),
+            };
+            const mockSale = { _id: new ObjectId('676d28be7d836af854cb9a55'), clientId: 'mockClientId', userId: 'mockUserId' };
+            const saveStub = sinon.stub(Sale.prototype, 'save').resolves(mockSale);
+            // When
+            await createSale(req, res);
+            // Then
+            sinon.assert.notCalled(saveStub);
+            sinon.assert.calledWith(res.status, 400);
+            sinon.assert.calledWith(res.json, {
+                message: "Missing required fields",
+            });
         });
         test('should handle server errors, returns 500', async () => {
-
+            // Given
+            const req = {
+                body: { clientId: 'mockClientId',  userId: 'mockUserId'},
+            };
+            const res = {
+                status: sinon.stub().returnsThis(),
+                json: sinon.stub(),
+            };
+            const saveStub = sinon.stub(Sale.prototype, 'save').throws(new Error('Database error'));
+            const consoleErrorStub = sinon.stub(console, 'error');
+            // When
+            await createSale(req, res);
+            // Then
+            sinon.assert.calledOnce(saveStub);
+            sinon.assert.calledOnce(consoleErrorStub);
+            sinon.assert.calledWith(consoleErrorStub, sinon.match.string, sinon.match.instanceOf(Error));
+            sinon.assert.calledWith(res.status, 500);
+            sinon.assert.calledWith(res.json, { message: 'Internal Server Error' });
         });
     });
 
     describe('updateSale', () => {
+
         afterEach(() => {
             sinon.restore(); // Restore mocks/stubs after each test
         });
+
         test('should successfully update existing sale', async () => {
+            // Given
+            const req = {
+                params: { saleId: 'mockSaleId' },
+                body: { status: 'Deal', userId: 'mockUserId', clientId: 'mockClientId' },
+            };
+            const res = {
+                status: sinon.stub().returnsThis(),
+                json: sinon.stub(),
+            };
+            const mockSale = { _id: 'mockSaleId', currentStatus: 'New' };
+            const mockUpdatedSale = {
+                _id: 'mockSaleId',
+                currentStatus: 'Deal',
+                userId: 'mockUserId',
+                clientId: 'mockClientId',
+            };
+            const findByIdStub = sinon.stub(Sale, 'findById').resolves(mockSale);
+            const saveStub = sinon.stub(SaleHistory.prototype, 'save').resolves();
+            const findByIdAndUpdateStub = sinon.stub(Sale, 'findByIdAndUpdate').resolves(mockUpdatedSale);
+            // When
+            await updateSale(req, res);
+            // Then
+            sinon.assert.calledOnce(findByIdStub);
+            sinon.assert.calledWith(findByIdStub, 'mockSaleId');
+
+            sinon.assert.calledOnce(saveStub);
+
+            sinon.assert.calledOnce(findByIdAndUpdateStub);
+            sinon.assert.calledWith(findByIdAndUpdateStub, 'mockSaleId', {
+                currentStatus: 'Deal',
+                userId: 'mockUserId',
+                clientId: 'mockClientId',
+            }, { new: true });
+
+            sinon.assert.calledWith(res.status, 200);
+            sinon.assert.calledWith(res.json, {
+                success: true,
+                data: mockUpdatedSale,
+            });
 
         });
         test('should return 404 in case of not finding the saleId', async () => {
+            // Given
+            const req = {
+                params: { saleId: 'nonExistentSaleId' },
+                body: { status: 'Deal' },
+            };
+            const res = {
+                status: sinon.stub().returnsThis(),
+                json: sinon.stub(),
+            };
 
+            const findByIdStub = sinon.stub(Sale, 'findById').resolves(null);
+
+            // When
+            await updateSale(req, res);
+
+            // Then
+            sinon.assert.calledOnce(findByIdStub);
+            sinon.assert.calledWith(findByIdStub, 'nonExistentSaleId');
+
+            sinon.assert.calledWith(res.status, 404);
+            sinon.assert.calledWith(res.json, { message: 'Sale not found' });
         });
         test('should return 400 invalid status in case of not proper status param', async () => {
+            // Given
+            const req = {
+                params: { saleId: 'mockSaleId' },
+                body: { status: 'InvalidStatus' },
+            };
+            const res = {
+                status: sinon.stub().returnsThis(),
+                json: sinon.stub(),
+            };
 
+            const mockSale = { _id: 'mockSaleId', currentStatus: 'New' };
+
+            const findByIdStub = sinon.stub(Sale, 'findById').resolves(mockSale);
+
+            // When
+            await updateSale(req, res);
+
+            // Then
+            sinon.assert.calledOnce(findByIdStub);
+            sinon.assert.calledWith(findByIdStub, 'mockSaleId');
+
+            sinon.assert.calledWith(res.status, 400);
+            sinon.assert.calledWith(res.json, { message: 'Invalid status' });
         });
         test('should handle server errors, return 500', async () => {
+            // Given
+            const req = {
+                params: { saleId: 'mockSaleId' },
+                body: { status: 'Deal' },
+            };
+            const res = {
+                status: sinon.stub().returnsThis(),
+                json: sinon.stub(),
+            };
 
+            const findByIdStub = sinon.stub(Sale, 'findById').throws(new Error('Database error'));
+            const consoleErrorStub = sinon.stub(console, 'error');
+            // When
+            await updateSale(req, res);
+
+            // Then
+            sinon.assert.calledOnce(findByIdStub);
+            sinon.assert.calledWith(findByIdStub, 'mockSaleId');
+            sinon.assert.calledOnce(consoleErrorStub);
+            sinon.assert.calledWith(consoleErrorStub, sinon.match.string, sinon.match.instanceOf(Error));
+            sinon.assert.calledWith(res.status, 500);
+            sinon.assert.calledWith(res.json, { message: 'Internal Server Error' });
         });
     });
 
