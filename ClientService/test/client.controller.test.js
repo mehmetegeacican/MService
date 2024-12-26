@@ -7,6 +7,8 @@ const {
 } = require('../controller/client.controller');
 const Client = require('../model/client.model');
 const Note = require('../model/note.model');
+const mongoose = require('mongoose');
+const { ObjectId } = mongoose.Types;
 
 describe('client controller tests', () => {
 
@@ -134,14 +136,108 @@ describe('client controller tests', () => {
     });
 
     describe('Creates Client', () => {
-        test('successfully creates new client', async () => {
+        let req, res, saveStub;
 
+        afterEach(() => {
+            sinon.restore();
+        });
+
+        test('successfully creates new client', async () => {
+            // Given
+            req = {
+                body: {
+                    name: "New Client",
+                    email: "newemail@email.com",
+                    phone: "1234567",
+                    company: "Company inc."
+
+                }
+            };
+            res = {
+                status: sinon.stub().returnsThis(),
+                json: sinon.stub(),
+            };
+            mockNewClient = {
+                name: "New Client",
+                email: "newemail@email.com",
+                phone: "1234567",
+                company: "Company inc.",
+                _id: new ObjectId('676d28be7d836af854cb9a55'), // Mock _id value
+            };
+            saveStub = sinon.stub(Client.prototype, 'save');
+            saveStub.resolves(mockNewClient);
+            // When
+            await createClient(req, res);
+            // Then
+            sinon.assert.calledOnce(saveStub);
+            sinon.assert.calledWith(res.status, 201);
+            sinon.assert.calledWith(res.json, { // Check the response body
+                message: 'Client created successfully',
+                client: sinon.match({
+                    name: "New Client",
+                    email: "newemail@email.com",
+                    phone: "1234567",
+                    company: "Company inc.",
+                    _id: sinon.match.instanceOf(ObjectId), // Check that _id is an instance of ObjectId
+                })
+            });
         });
         test('returns 400 if required parameters are missing', async () => {
+            // Given
+            req = {
+                body: {
+                    name: "New Client",
+                    // email
+                    phone: "1234567",
+                    company: "Company inc."
 
+                }
+            };
+            res = {
+                status: sinon.stub().returnsThis(),
+                json: sinon.stub(),
+            };
+            mockNewClient = {
+                name: "New Client",
+                email: "newemail@email.com",
+                phone: "1234567",
+                company: "Company inc.",
+                _id: new ObjectId('676d28be7d836af854cb9a55'), // Mock _id value
+            };
+            saveStub = sinon.stub(Client.prototype, 'save').resolves(mockNewClient);
+            // When
+            await createClient(req, res);
+            // Then
+            sinon.assert.notCalled(saveStub);
+            sinon.assert.calledWith(res.status, 400);
+            sinon.assert.calledWith(res.json, { message: 'All fields are required' });
         });
         test('handles server errors, returns 500', async () => {
+            // Given
+            req = {
+                body: {
+                    name: "New Client",
+                    email: "newemail@email.com",
+                    phone: "1234567",
+                    company: "Company inc."
 
+                }
+            };
+            res = {
+                status: sinon.stub().returnsThis(),
+                json: sinon.stub(),
+            };
+            const consoleErrorStub = sinon.stub(console, 'error');
+            saveStub = sinon.stub(Client.prototype, 'save').rejects(new Error('Database error'));
+            // When
+            await createClient(req, res);
+            // Then
+            sinon.assert.calledWith(res.status, 500);
+            sinon.assert.calledWith(res.json, {
+                message: 'Internal Server Error',
+            });
+            sinon.assert.calledOnce(consoleErrorStub);
+            sinon.assert.calledWith(consoleErrorStub, sinon.match.string, sinon.match.instanceOf(Error));
         });
     });
 
