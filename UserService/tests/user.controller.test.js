@@ -3,6 +3,8 @@ const { signUp, login, viewUsers, updateUser } = require('../controllers/user.co
 const User = require('../models/User');
 const bcrypt = require('bcryptjs');
 const jwt = require('jsonwebtoken');
+const mongoose = require('mongoose');
+const { ObjectId } = mongoose.Types;
 
 
 describe('User Controller Tests', () => {
@@ -24,19 +26,45 @@ describe('User Controller Tests', () => {
                 status: sinon.stub().returnsThis(),
                 json: sinon.stub()
             };
-            sinon.stub(User, 'findOne').resolves(null);
-            
+            const findOneStub = sinon.stub(User, 'findOne').resolves(null);
+            const hashStub = sinon.stub(bcrypt, 'hash').resolves('hashedPassword123');
+            const mockUser = {
+                _id: new ObjectId('676d28be7d836af854cb9a55'),
+                username: 'newuser',
+                email: 'newuser@example.com',
+                role: 'sales',
+                password: 'hashedPassword123'
+            }
+            const saveStub = sinon.stub(User.prototype, 'save').resolves(mockUser);
+            // Stub jwt.sign to simulate JWT token generation
+            const tokenMock = 'mockJWTtoken';
+            const jwtSignStub = sinon.stub(jwt, 'sign').returns(tokenMock);
+
             // When
-            //await signUp(req, res);
+            await signUp(req, res);
             // Then
-            /*
-            sinon.assert.calledWith(res.status, 201); // Ensure status is 201
+            // Ensure email is checked for duplicates
+            sinon.assert.calledOnce(findOneStub);
+            sinon.assert.calledWith(findOneStub, { email: 'newuser@example.com' }); 
+            // Ensure password is hashed
+            sinon.assert.calledOnce(hashStub);
+            sinon.assert.calledWith(hashStub, 'password123', sinon.match.number);
+            // Ensure the User save is called
+            sinon.assert.calledOnce(saveStub);
+            // Ensure the jwt sign is called
+            sinon.assert.calledOnce(jwtSignStub);
+            // Ensure status is 201
+            sinon.assert.calledWith(res.status, 201);
+            // Ensure the response is proper
             sinon.assert.calledWith(res.json, {
                 message: 'User created successfully',
-                user: mockUser,
+                user: sinon.match({
+                    ...mockUser,
+                    _id: sinon.match.instanceOf(ObjectId)
+                }),
                 token: tokenMock
             });
-            */
+
         });
         test('should return 400 in case of an existing user', async () => {
             // Given
