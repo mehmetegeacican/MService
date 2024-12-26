@@ -406,14 +406,14 @@ describe('sales controller tests', () => {
             };
 
             const findByIdStub = sinon.stub(Sale, 'findById').throws(new Error('Database error'));
-
+            const consoleErrorStub = sinon.stub(console, 'error');
             // When
             await addSaleNote(req, res);
 
             // Then
             sinon.assert.calledOnce(findByIdStub);
             sinon.assert.calledWith(findByIdStub, 'mockSaleId');
-
+            sinon.assert.calledOnce(consoleErrorStub);
             sinon.assert.calledWith(res.status, 500);
             sinon.assert.calledWith(res.json, { message: 'Internal Server Error' });
         });
