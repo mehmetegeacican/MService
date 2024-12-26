@@ -117,7 +117,7 @@ const updateNote = async (req,res) => {
         });
         res.json(response.data);  // Return the response from ClientService
     } catch (error) {
-        res.status(500).send('Error updating note');
+        res.status(500).json({message: 'Error updating note'});
     }
 }
 
