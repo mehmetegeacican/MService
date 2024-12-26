@@ -45,7 +45,7 @@ const getClients = async (req, res) => {
  * @param {*} res 
  * @returns 
  */
-const getNotesOfClient = async (req, res) => { 
+const getNotesOfClient = async (req, res) => {
     try {
         // Step 0 -- Variables
         const { clientId } = req.params;
@@ -104,32 +104,24 @@ const updateClient = async (req, res) => {
         const { clientId } = req.params;
         const { name, email, phone, company } = req.body;
 
-        // Step 1 -- Find the Client By ID
-        const client = await Client.findById(clientId);
+        // Step 1 -- Update the Client directly
+        const updatedClient = await Client.findByIdAndUpdate(
+            clientId,
+            {
+                ...(name && { name }),
+                ...(email && { email }),
+                ...(phone && { phone }),
+                ...(company && { company })
+            },
+            { new: true }
+        );
 
-        // Check if the client exists
-        if (!client) {
+        // Step 2 -- Check if the client exists
+        if (!updatedClient) {
             return res.status(404).json({ message: 'Client not found' });
         }
 
-        // Step 2 -- Update the Client
-        if (name) {
-            client.name = name;
-        }
-        if (email) {
-            client.email = email;
-        }
-        if (phone) {
-            client.phone = phone;
-        }
-        if (company) {
-            client.company = company;
-        }
-        // Step 3 -- Save the updated client
-
-        await client.save();
-        return res.status(200).json({ message: 'Client updated successfully', client });
-
+        return res.status(200).json({ message: 'Client updated successfully', client: updatedClient });
     } catch (error) {
         console.error('Error updating client:', error);
         return res.status(500).json({ message: 'Internal Server Error' });
