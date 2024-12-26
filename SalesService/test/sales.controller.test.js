@@ -9,6 +9,7 @@ const {
 } = require('../controller/sales.controller');
 const Sale = require('../model/sale.model');
 const SaleHistory = require('../model/saleHistory.model');
+const SaleNote = require('../model/saleNote.model');
 
 describe('sales controller tests', () => {
 
@@ -118,7 +119,7 @@ describe('sales controller tests', () => {
             const findStub = sinon.stub(SaleHistory, 'find').throws(new Error('Database error'));
             const consoleErrorStub = sinon.stub(console, 'error');
             // When
-            await getSaleHistory(req,res);
+            await getSaleHistory(req, res);
             // Then
             sinon.assert.calledOnce(findStub);
             sinon.assert.calledWith(findStub, { saleId: 'mockSaleId' });
@@ -143,6 +144,9 @@ describe('sales controller tests', () => {
     });
 
     describe('updateSale', () => {
+        afterEach(() => {
+            sinon.restore(); // Restore mocks/stubs after each test
+        });
         test('should successfully update existing sale', async () => {
 
         });
@@ -170,14 +174,73 @@ describe('sales controller tests', () => {
     });
 
     describe('editSaleNote', () => {
-        test('should successfully update sale note', async () => {
 
+        afterEach(() => {
+            sinon.restore(); // Restore mocks/stubs after each test
+        });
+        test('should successfully update sale note', async () => {
+            // Given
+            const req = {
+                params: { noteId: 'mockNoteId' },
+                body: { note: 'Updated sale note' },
+            };
+            const res = {
+                status: sinon.stub().returnsThis(),
+                json: sinon.stub(),
+            };
+
+            const mockSaleNote = { _id: 'mockNoteId', note: 'Updated sale note' };
+            const findByIdAndUpdateStub = sinon.stub(SaleNote, 'findByIdAndUpdate').resolves(mockSaleNote);
+            // When
+            await editSaleNote(req, res);
+
+            // Then
+            sinon.assert.calledOnce(findByIdAndUpdateStub);
+            sinon.assert.calledWith(findByIdAndUpdateStub, 'mockNoteId', { note: 'Updated sale note' }, { new: true });
+            sinon.assert.calledWith(res.status, 200);
+            sinon.assert.calledWith(res.json, {
+                success: true,
+                data: mockSaleNote,
+            });
         });
         test('should return 404 if sale is not found by Id', async () => {
-
+            // Given
+            const req = {
+                params: { noteId: 'mockNoteId' },
+                body: { note: 'Updated sale note' },
+            };
+            const res = {
+                status: sinon.stub().returnsThis(),
+                json: sinon.stub(),
+            };
+            const findByIdAndUpdateStub = sinon.stub(SaleNote, 'findByIdAndUpdate').resolves(null);
+            // When
+            await editSaleNote(req, res);
+            // Then
+            sinon.assert.calledOnce(findByIdAndUpdateStub);
+            sinon.assert.calledWith(res.status, 404);
+            sinon.assert.calledWith(res.json, { message: 'Sale note not found' });
         });
         test('should handle server errors', async () => {
-
+            // Given
+            const req = {
+                params: { noteId: 'mockNoteId' },
+                body: { note: 'Updated sale note' },
+            };
+            const res = {
+                status: sinon.stub().returnsThis(),
+                json: sinon.stub(),
+            };
+            const findByIdAndUpdateStub = sinon.stub(SaleNote, 'findByIdAndUpdate').throws(new Error('Error'));
+            const consoleErrorStub = sinon.stub(console, 'error');
+            // When
+            await editSaleNote(req, res);
+            // Then
+            sinon.assert.calledOnce(findByIdAndUpdateStub);
+            sinon.assert.calledWith(res.status, 500);
+            sinon.assert.calledWith(res.json, { message: 'Internal Server Error' });
+            sinon.assert.calledOnce(consoleErrorStub);
+            sinon.assert.calledWith(consoleErrorStub, sinon.match.string, sinon.match.instanceOf(Error));
         });
     });
 });
