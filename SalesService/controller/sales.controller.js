@@ -8,16 +8,16 @@ const SaleHistory = require('../model/saleHistory.model');
  * @param {*} req 
  * @param {*} res 
  */
-const getSales = async (req, res) => { 
-    try{
+const getSales = async (req, res) => {
+    try {
         // Step 0 -- Filter Options
-        const {clientId,userId,sortBy='updatedAt',order='desc'} = req.query;
+        const { clientId, userId, sortBy = 'updatedAt', order = 'desc' } = req.query;
         // Step 1 -- Add the Filtering
         const filters = {};
-        if(clientId){
+        if (clientId) {
             filters.clientId = clientId;
         }
-        if(userId){
+        if (userId) {
             filters.userId = userId;
         }
         // Step 2 -- Add the Sorting
@@ -49,7 +49,7 @@ const getSaleHistory = async (req, res) => {
             success: true,
             data: saleHistory,
         });
-    } catch(error) {
+    } catch (error) {
         console.error('Error fetching sale history:', error);
         return res.status(500).json({ message: 'Internal Server Error' });
     }
@@ -60,12 +60,12 @@ const getSaleHistory = async (req, res) => {
  * @param {*} req 
  * @param {*} res 
  */
-const createSale = async (req, res) => { 
-    try{
+const createSale = async (req, res) => {
+    try {
         // Step 0 -- Variables
-        const {clientId,userId} = req.body;
+        const { clientId, userId } = req.body;
         // Step 1 -- Make sure that the client and user exist
-        if(!clientId|| !userId){
+        if (!clientId || !userId) {
             return res.status(400).json({ message: 'Missing required fields' });
         }
         // Step 2 -- Create the sale
@@ -79,7 +79,7 @@ const createSale = async (req, res) => {
             success: true,
             data: sale,
         });
-    } catch(error) {
+    } catch (error) {
         console.error('Error creating sale:', error);
         return res.status(500).json({ message: 'Internal Server Error' });
     }
@@ -90,8 +90,8 @@ const createSale = async (req, res) => {
  * @param {*} req 
  * @param {*} res 
  */
-const updateSale = async (req, res) => { 
-    try{
+const updateSale = async (req, res) => {
+    try {
         // Step 0 -- Variables
         const { saleId } = req.params;
         const { status, userId, clientId } = req.body;
@@ -138,7 +138,7 @@ const updateSale = async (req, res) => {
             data: updatedSale,
         });
 
-    } catch(error) {
+    } catch (error) {
         console.error('Error updating sale:', error);
         return res.status(500).json({ message: 'Internal Server Error' });
     }
@@ -149,14 +149,14 @@ const updateSale = async (req, res) => {
  * @param {*} req 
  * @param {*} res 
  */
-const addSaleNote = async (req, res) => { 
-    try{
+const addSaleNote = async (req, res) => {
+    try {
         // Step 0 -- Variables
-        const {saleId} = req.params;
-        const {note} = req.body;
+        const { saleId } = req.params;
+        const { note } = req.body;
         // Step 1 -- Make sure that the sale exists
         const sale = await Sale.findById(saleId);
-        if(!sale){
+        if (!sale) {
             return res.status(404).json({ message: 'Sale not found' });
         }
         // Step 2 -- Add the sale note
@@ -170,7 +170,7 @@ const addSaleNote = async (req, res) => {
             success: true,
             data: newSaleNote,
         });
-    } catch(error) {
+    } catch (error) {
         console.error('Error adding sale note:', error);
         return res.status(500).json({ message: 'Internal Server Error' });
     }
@@ -181,27 +181,31 @@ const addSaleNote = async (req, res) => {
  * @param {*} req 
  * @param {*} res 
  */
-const editSaleNote = async (req, res) => { 
-    try{
+const editSaleNote = async (req, res) => {
+    try {
         // Step 0 -- Variables
-        const {noteId} = req.params;
-        const {note} = req.body;
+        const { noteId } = req.params;
+        const { note } = req.body;
+
         // Step 1 -- Make sure that the sale note exists
-        const saleNote = await SaleNote.findById(noteId);
-        if(!saleNote){
+        const saleNote = await SaleNote.findByIdAndUpdate(
+            noteId,
+            { note },
+            { new: true }
+        );
+
+        // Step 2 -- Return 404 if sale not was not found
+        if (!saleNote) {
             return res.status(404).json({ message: 'Sale note not found' });
         }
-        // Step 2 -- Update the sale note
-        saleNote.note = note;
-        // Step 3 -- Save the sale note
-        await saleNote.save();
-        // Return the sale note
+
+        // Return the updated sale note
         return res.status(200).json({
             success: true,
             data: saleNote,
         });
 
-    } catch(error) {
+    } catch (error) {
         console.error('Error editing sale note:', error);
         return res.status(500).json({ message: 'Internal Server Error' });
     }
@@ -210,7 +214,7 @@ const editSaleNote = async (req, res) => {
 
 
 
-module.exports = { 
+module.exports = {
     getSales,
     createSale,
     updateSale,
