@@ -1,12 +1,65 @@
 const sinon = require('sinon');
 const axios = require('axios');
 const {
+    getClients,
     getNotesOfClient,
     createClient,
     updateClient,
     createNote,
     updateNote
 } = require('../services/client.service');
+
+
+describe('getClients API Gateway', () => {
+    let req, res;
+
+    beforeEach(() => {
+        req = {
+            params: { clientId: '123' },
+            headers: {
+                authorization: 'Bearer validToken',
+                'x-gateway-secret': 'validSecretKey',
+            }
+        }; // Simulate the request object
+
+        res = {
+            json: sinon.stub(),
+            status: sinon.stub().returnsThis()
+        }; // Simulate the response object
+    });
+
+    afterEach(() => {
+        sinon.restore(); // Restore stubs and spies after each test
+    });
+
+    test('should return client notes when the request is successful', async () => {
+        // Given
+        const mockResponse = { data: { clients: [{name:'client1'},{name:'client2'}] } };
+        const axiosGetStub = sinon.stub(axios, 'get').resolves(mockResponse);
+
+        // When
+        await getClients(req, res);
+
+        // Then
+        sinon.assert.calledOnce(axiosGetStub);
+        sinon.assert.calledWith(res.json, mockResponse.data);
+    });
+
+    test('should return 500 if there is an error in the axios request', async () => {
+        // Given
+        const errorMessage = 'Network error';
+        const axiosGetStub = sinon.stub(axios, 'get').rejects(new Error(errorMessage));
+       
+
+        // When
+        await getClients(req, res);
+
+        // Then
+        sinon.assert.calledOnce(axiosGetStub); 
+        sinon.assert.calledWith(res.status, 500);
+        sinon.assert.calledWith(res.json, { message: 'Error getting clients' }); 
+    });
+});
 
 describe('getNotesOfClient API Gateway', () => {
     let req, res;
