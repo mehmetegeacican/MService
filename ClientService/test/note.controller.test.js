@@ -89,11 +89,13 @@ describe('note controller tests', () => {
                 json: sinon.stub(),
             };
             const findByIdAndUpdateStub = sinon.stub(Note, 'findByIdAndUpdate').throws(new Error('Database error'));
+            const consoleErrorStub = sinon.stub(console, 'error');
             // When
             await updateExistingNote(req, res);
             // Then
             sinon.assert.calledOnce(findByIdAndUpdateStub);
             sinon.assert.calledWith(res.status, 500);
+            sinon.assert.calledWith(consoleErrorStub, sinon.match.string, sinon.match.instanceOf(Error));
             sinon.assert.calledWith(res.json, { message: 'Internal Server Error' });
         });
     });

@@ -60,7 +60,7 @@ const updateExistingNote = async (req, res) => {
         return res.status(200).json({ message: 'Note updated successfully', note: updatedNote });
 
     } catch (e) {
-        //console.error('Error updating note :', e);
+        console.error('Error updating note :', e);
         return res.status(500).json({ message: 'Internal Server Error' });
     }
 }
