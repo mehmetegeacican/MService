@@ -128,10 +128,6 @@ const updateSale = async (req, res) => {
         // Step 5 -- Update the sale using findByIdAndUpdate
         const updatedSale = await Sale.findByIdAndUpdate(saleId, updateFields, { new: true });
 
-        if (!updatedSale) {
-            return res.status(404).json({ message: 'Sale not found' });
-        }
-
         // Step 6 -- Return the updated sale
         return res.status(200).json({
             success: true,
