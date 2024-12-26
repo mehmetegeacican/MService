@@ -22,7 +22,7 @@ describe('client controller tests', () => {
 
         test('successfully retrieves clients with filters', async () => {
             // Given
-            const req = { query: { name: 'John' } };
+            const req = { query: { name: 'John' , email  : 'John@email.com', company : 'Company inc'} };
             const res = {
                 status: sinon.stub().returnsThis(),
                 json: sinon.stub(),
@@ -48,6 +48,8 @@ describe('client controller tests', () => {
             sinon.assert.calledOnce(mockFind);
             sinon.assert.calledWith(mockFind, {
                 name: { $regex: 'John', $options: 'i' },
+                email : {$regex: 'John@email.com', $options: 'i'},
+                company : {$regex: 'Company inc', $options: 'i'}
             });
 
             const sortStub = mockFind().sort;
