@@ -150,8 +150,11 @@ const updateSale = async (req, res) => {
 const getSaleNotes = async (req, res) => {
     try {
         const {saleId} = req.params;
+        const {
+            sortBy='updatedAt', sort='desc'
+        } = req.query;
         // Step 1 -- Fetch sale notes from the database using the sale ID
-        const saleNotes = await SaleNote.find({ saleId });
+        const saleNotes = await SaleNote.find({ saleId }).sort({ [sortBy]: sort === 'desc' ? -1 : 1 });
         // Step 2 -- Check if sale notes exist
         if (!saleNotes) {
             return res.status(404).json({ message: 'No sale notes found for the given sale ID' });
