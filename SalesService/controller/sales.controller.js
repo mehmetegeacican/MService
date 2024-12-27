@@ -155,11 +155,7 @@ const getSaleNotes = async (req, res) => {
         } = req.query;
         // Step 1 -- Fetch sale notes from the database using the sale ID
         const saleNotes = await SaleNote.find({ saleId }).sort({ [sortBy]: sort === 'desc' ? -1 : 1 });
-        // Step 2 -- Check if sale notes exist
-        if (!saleNotes) {
-            return res.status(404).json({ message: 'No sale notes found for the given sale ID' });
-        }
-        // Step 3 -- Respond with the sale notes
+        // Step 2 -- Respond with the sale notes
         return res.status(200).json(saleNotes);
     } catch (e) {
         console.error('Error getting sale notes:', e);

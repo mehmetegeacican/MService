@@ -6,11 +6,13 @@ const {
     updateSale,
     addSaleNote,
     editSaleNote,
+    getSaleNotes,
 } = require('../controller/sales.controller');
 const Sale = require('../model/sale.model');
 const SaleHistory = require('../model/saleHistory.model');
 const SaleNote = require('../model/saleNote.model');
 const mongoose = require('mongoose');
+const { query } = require('../schema/sale.schema');
 const { ObjectId } = mongoose.Types;
 
 describe('sales controller tests', () => {
@@ -274,7 +276,7 @@ describe('sales controller tests', () => {
             // Then
             sinon.assert.calledOnce(findByIdStub);
             sinon.assert.calledWith(findByIdStub, 'nonExistentSaleId');
-            
+
             sinon.assert.calledWith(res.status, 404);
             sinon.assert.calledWith(res.json, { message: 'Sale not found' });
         });
@@ -365,7 +367,7 @@ describe('sales controller tests', () => {
                 success: true,
                 data: sinon.match({
                     ...mockSaleNote,
-                    _id : sinon.match.instanceOf(ObjectId)
+                    _id: sinon.match.instanceOf(ObjectId)
                 }),
             });
         });
@@ -487,6 +489,67 @@ describe('sales controller tests', () => {
             sinon.assert.calledWith(res.json, { message: 'Internal Server Error' });
             sinon.assert.calledOnce(consoleErrorStub);
             sinon.assert.calledWith(consoleErrorStub, sinon.match.string, sinon.match.instanceOf(Error));
+        });
+    });
+
+    describe('getSaleNotes', () => {
+        let req, res;
+
+        beforeEach(() => {
+            req = {
+                params: { saleId: 'mockSaleId' },
+                query: { sortBy: 'updatedAt', sort: 'desc' },
+            };
+            res = {
+                status: sinon.stub().returnsThis(),
+                json: sinon.stub(),
+            };
+        });
+
+        afterEach(() => {
+            sinon.restore(); // Restore all stubs after each test
+        });
+
+        test('should successfully return sale notes', async () => {
+            // Given
+            const mockSaleNotes = [
+                {saleId: 'mockSaleId', updatedAt: '2024-12-25', note: 'Note 1' },
+                { saleId: 'mockSaleId', updatedAt: '2024-12-24', note: 'Note 2' },
+            ];
+            const sortStub = sinon.stub().returns(mockSaleNotes);
+            const findStub = sinon.stub(SaleNote, 'find').returns({ sort: sortStub });
+
+            // When
+            await getSaleNotes(req, res);
+
+            // Then
+            sinon.assert.calledOnce(findStub);
+            sinon.assert.calledWith(findStub, { saleId: 'mockSaleId' });
+
+            sinon.assert.calledOnce(sortStub);
+            sinon.assert.calledWith(sortStub, { updatedAt: -1 });
+
+            sinon.assert.calledWith(res.status, 200);
+            sinon.assert.calledWith(res.json, mockSaleNotes);
+        });
+
+        test('should handle server errors', async () => {
+            // Given
+            const findStub = sinon.stub(SaleNote, 'find').throws(new Error('Database error'));
+            const consoleErrorStub = sinon.stub(console, 'error');
+
+            // When
+            await getSaleNotes(req, res);
+
+            // Then
+            sinon.assert.calledOnce(findStub);
+            sinon.assert.calledWith(findStub, { saleId: 'mockSaleId' });
+
+            sinon.assert.calledOnce(consoleErrorStub);
+            sinon.assert.calledWith(consoleErrorStub, 'Error getting sale notes:', sinon.match.instanceOf(Error));
+
+            sinon.assert.calledWith(res.status, 500);
+            sinon.assert.calledWith(res.json, { message: 'Internal Server Error' });
         });
     });
 });
