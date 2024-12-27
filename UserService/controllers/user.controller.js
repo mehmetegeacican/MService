@@ -89,7 +89,7 @@ const viewUsers = async (req, res) => {
 const updateUser = async (req, res) => {
     try {
         const { userId } = req.params;
-        const { username, email, password } = req.body;
+        const { username, email, password, role } = req.body;
         
         // NEW PASSWORD HASHING
         let hashedPassword = password
@@ -97,12 +97,23 @@ const updateUser = async (req, res) => {
             hashedPassword = await bcrypt.hash(password, 10);
         }
         // Role Change -- Only Admin can change role
-
-        const updatedUser = await User.findByIdAndUpdate(userId, { 
-            username:username, 
-            email:email, 
-            password:hashedPassword,
-        }, { new: true });
+        if(role){
+            const token = req.headers['authorization']?.split(' ')[1];
+            let requestingUser = jwt.verify(token, process.env.JWT_SECRET);
+            if(requestingUser.role !== 'admin'){
+                return res.status(403).json({ message: 'Only admins can change user roles' });
+            }
+        }
+        // Update
+        const updateData = {
+            username: username,
+            email: email,
+            password: hashedPassword,
+        };
+        if (role) {
+            updateData.role = role;
+        }
+        const updatedUser = await User.findByIdAndUpdate(userId, updateData, { new: true });
 
         if (!updatedUser) {
             return res.status(404).json({ message: 'User not found' });
