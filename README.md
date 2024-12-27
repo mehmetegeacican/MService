@@ -69,3 +69,6 @@ Sinon and Jest have been used. Coverage have been added also
 
 * For API Documentation, Swagger have been used. Used for the various services
   The documents can be reached by using the respective api url of the service with adding /api-docs to the end
+  
+* For tests use `npm run test` in the specific service that you want to control. E.g -> in ./UserService
+* For tests with coverage, use `npm run test-coverage` for seeing how much of the services have been covered for test 
