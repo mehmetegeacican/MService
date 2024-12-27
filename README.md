@@ -15,7 +15,28 @@ The Project consists of 4 microservices
 
 The structure diagram shows the architectural design of the microservices. The project follows classical api gateway based architecture
 
-<img src='./Assets/newdiagram.drawio.png' alt='digram' /> 
+```
+                      +--------------------+
+                      |    API Gateway     |
+                      | (Entry Point for   |
+                      |   All Requests)    |
+                      +--------------------+
+                                |
+    ------------------------------------------------------------
+    |                          |                          |
++----------------+     +-----------------+       +-----------------+
+| UserService    |     | ClientService   |       | SaleService     |
+| (Handles User  |     | (Handles Client |       | (Handles Sale   |
+| Management)    |     | Data)           |       | Data)           |
++----------------+     +-----------------+       +-----------------+
+        |                       |                        |
++---------------+      +----------------+       +----------------+
+| UserDB        |      | ClientDB       |       | SaleDB         |
+| (Database for |      | (Database for  |       | (Database for  |
+| User Data)    |      | Client Data)   |       | Sale Data)     |
++---------------+      +----------------+       +----------------+
+
+```
 
 ### Code Structure
 
