@@ -533,6 +533,26 @@ describe('sales controller tests', () => {
             sinon.assert.calledWith(res.json, mockSaleNotes);
         });
 
+        test('should successfully return empty array notes', async () => {
+            // Given
+            
+            const sortStub = sinon.stub().returns([]);
+            const findStub = sinon.stub(SaleNote, 'find').returns({ sort: sortStub });
+
+            // When
+            await getSaleNotes(req, res);
+
+            // Then
+            sinon.assert.calledOnce(findStub);
+            sinon.assert.calledWith(findStub, { saleId: 'mockSaleId' });
+
+            sinon.assert.calledOnce(sortStub);
+            sinon.assert.calledWith(sortStub, { updatedAt: -1 });
+
+            sinon.assert.calledWith(res.status, 200);
+            sinon.assert.calledWith(res.json, []);
+        });
+
         test('should handle server errors', async () => {
             // Given
             const findStub = sinon.stub(SaleNote, 'find').throws(new Error('Database error'));
