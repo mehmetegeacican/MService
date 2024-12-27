@@ -140,6 +140,31 @@ const updateSale = async (req, res) => {
     }
 };
 
+
+/**
+ * Gets Sale Notes of a Specific Sale
+ * @param {*} req 
+ * @param {*} res 
+ * @returns 
+ */
+const getSaleNotes = async (req, res) => {
+    try {
+        const {saleId} = req.params;
+        // Step 1 -- Fetch sale notes from the database using the sale ID
+        const saleNotes = await SaleNote.find({ saleId });
+        // Step 2 -- Check if sale notes exist
+        if (!saleNotes) {
+            return res.status(404).json({ message: 'No sale notes found for the given sale ID' });
+        }
+        // Step 3 -- Respond with the sale notes
+        return res.status(200).json(saleNotes);
+    } catch (e) {
+        console.error('Error getting sale notes:', e);
+        return res.status(500).json({ message: 'Internal Server Error' });
+    }
+
+}
+
 /**
  * Adds a New Sale Note
  * @param {*} req 
@@ -212,6 +237,7 @@ const editSaleNote = async (req, res) => {
 
 module.exports = {
     getSales,
+    getSaleNotes,
     createSale,
     updateSale,
     addSaleNote,

@@ -27,6 +27,26 @@ const getSales = async (req, res) => {
 }
 
 /**
+ * Rerouting of Getting Sale Notes
+ * @param {*} req 
+ * @param {*} res 
+ */
+const getSaleNotes = async (req,res) => {
+  try {
+    const response = await axios.get(`${SALE_SERVICE_URL}/api/v1/sales/${req.params.saleId}/notes`, {
+      headers: {
+        Authorization: `Bearer ${req.headers['authorization'].split(' ')[1]}`,
+        'x-gateway-secret': GATEWAY_SECRET_KEY
+      }
+    });
+    res.json(response.data);  // Return the response from SaleService
+
+  } catch (error) {
+    res.status(500).json({ message: 'Error getting sales' });
+  }
+}
+
+/**
  * Routing for creating a sale api
  * @param {*} req 
  * @param {*} res 
@@ -124,4 +144,4 @@ const getSaleHistory = async (req, res) => {
 };
 
 
-module.exports = { getSales, getSaleHistory, createSale, updateSale, addSaleNote, editSaleNote };
+module.exports = { getSales, getSaleHistory, createSale, updateSale, addSaleNote, editSaleNote , getSaleNotes};

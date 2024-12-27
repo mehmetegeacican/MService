@@ -1,6 +1,7 @@
 const express = require('express');
 const {
     getSales,
+    getSaleNotes,
     createSale,
     updateSale,
     getSaleHistory,
@@ -141,6 +142,7 @@ router.get('/', getSales);
  */
 router.get('/:saleId/history', getSaleHistory);
 
+router.get('/:saleId/notes',getSaleNotes);
 
 /**
  * @swagger
@@ -441,5 +443,7 @@ router.put('/:saleId/note/:noteId', editSaleNote);
  *         description: Internal Server error.
  */
 router.put('/:saleId', updateSale);
+
+
 
 module.exports = router;
